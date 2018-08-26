@@ -39,10 +39,31 @@ dict_06_29_18={
 '9r': [0.09303, 127.310, 256.6],
 }
 
+dict_05_03_13={
+'3e': [0.033164, 121.194, 253.3],
+'4e': [0.044152, 123.036, 253.2],
+'5e': [0.055259, 124.101, 253.2],
+'6e': [0.066620, 124.910, 254.0],
+'7e': [0.077550, 125.410, 253.8],
+'8e': [0.088370, 125.830, 253.7],
+'9e': [0.099350, 126.070, 253.6],
+'3r': [0.030837, 124.835, 256.8],
+'4r': [0.041231, 125.743, 256.8],
+'5r': [0.051529, 126.335, 256.8],
+'6r': [0.061796, 126.713, 256.8],
+'7r': [0.072000, 127.010, 257.0],
+'8r': [0.082400, 127.210, 256.9],
+'9r': [0.092900, 127.360, 256.9],
+}
+
+
+
+
 
 calibration_base = {
 datetime.strptime('05-22-99', '%m-%d-%y'):dict_05_22_99,
 datetime.strptime('06-29-18', '%m-%d-%y'):dict_06_29_18,
+datetime.strptime('05-03-13', '%m-%d-%y'):dict_05_03_13,
 }
 
 def munck_parser(source_file):
@@ -77,6 +98,43 @@ def munck_parser(source_file):
                 rawdataseq += map(int, eight_numbers[:-1])
         
         collect_date = datetime.strptime(collect_date, '%m-%d-%y')
+        wholeblock = filename + ' ' + header2
+        
+    return filename, collect_date, liner, temperature, field, veloscale, rawdataseq, wholeblock
+
+def guo_parser(source_file):
+    rawdataseq = []
+    print(source_file)
+    with open(source_file,'r') as file_ptr:
+        for i, eachline in enumerate(file_ptr):
+            if i == 0:
+                header1 = eachline.split(' ')
+                filename = header1[0]
+                collect_date = header1[4]
+
+            if i == 1:
+                header2 = eachline
+                liner = ' '
+                re_results = re.search('T=(.*?);',eachline)
+                temperature = re_results.group(1)
+                re_results = re.search('B=(.*?);',eachline)
+                field = re_results.group(1)
+                re_results = re.search('VS=(.*?)\n',eachline)
+                veloscale = re_results.group(1)
+
+            if i == 2:
+                pass
+            if i == 3:
+                pass
+                #header4 = eachline.split(' ')
+                #print(header4)
+                #foldpoint = float(header4[0])
+            if i >= 4:
+                eight_numbers = eachline.split('.')
+                rawdataseq += map(int, eight_numbers[:-1])
+        
+        print(temperature, field, veloscale)
+        collect_date = datetime.strptime(collect_date, '%d-%b-%y')
         wholeblock = filename + ' ' + header2
         
     return filename, collect_date, liner, temperature, field, veloscale, rawdataseq, wholeblock

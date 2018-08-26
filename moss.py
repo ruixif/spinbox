@@ -1,5 +1,5 @@
 import numpy as np
-from utils import munck_parser, calibration_base, read_calibration, parse_arguments, folddata
+from preutils import munck_parser, calibration_base, read_calibration, parse_arguments, folddata, guo_parser
 from matplotlib import pyplot as plt
 import csv
 
@@ -12,7 +12,10 @@ class Spectrum:
         if file_type == "munck_cmu":
             self._filename, self._date, self._liner, self._temperature, self._field, self._veloscale, \
                  self._rawdataseq, self._wholeblock = munck_parser(source_file)
-        else: 
+        elif file_type == "guo_cmu":
+            self._filename, self._date, self._liner, self._temperature, self._field, self._veloscale, \
+                 self._rawdataseq, self._wholeblock = guo_parser(source_file)
+        else:
             print(file_type + "not available")
             
         self.calibration = calibration
@@ -26,7 +29,7 @@ class Spectrum:
             channels = np.linspace(1, 256, num=256)
             velocity = [(each-ZVC) * slope for each in channels]
             self._velocity = velocity
-        elif ('rr' in self._filename) or ('RR' in self._filename):
+        elif ('rr' in self._filename) or ('RR' in self._filename) or ('r' in self._filename):
             #unfolded data 
             channels = np.linspace(1, 512, num=512)
             aved_channel, self._count = folddata(foldpoint, channels, self._rawdataseq)
@@ -77,7 +80,8 @@ def main(args):
         mkdir(processedpath)
     
     for eachsource in onlyfiles:
-        spectrum = Spectrum(eachsource, 'munck_cmu', calibration_base)
+        #print(eachsource)
+        spectrum = Spectrum(eachsource, 'guo_cmu', calibration_base)
         spectrum.calibrate()
         spectrum.plot(outpath = processedpath,showflag = plotflag)
         spectrum.export(outpath = processedpath)
