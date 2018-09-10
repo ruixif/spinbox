@@ -143,8 +143,7 @@ def guo_parser(source_file):
 def read_calibration(calibration_file, collect_date, veloscale):
     #compute the closest date
     daterr = min(calibration_base.keys(), key=lambda dater : abs((collect_date.date()-dater.date())))
-    print(veloscale)
-    return calibration_base[daterr][veloscale]
+    return calibration_base[daterr][veloscale.lower()]
 
 def parse_arguments():
     # Command-line flags are defined here.
